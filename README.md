@@ -12,7 +12,11 @@ Atmos now requires [StratosAPI](https://github.com/jeanthebum/stratos-api), a se
 
 The manifest declares `[stratos] api = ">=0.1.0, <0.2.0"`. Atmos releases and public API versions are independent. Stratos rejects incompatible packs before GPU compilation and automatically selects the floating-point scene renderer; an HDR environment override is no longer needed.
 
-This repository contains only Atmos shader sources and required procedural textures. StratosAPI's renderer code, tests and releases live in its own repository. Use the Stratos-built `horizon-shader` tool for validation and packaging.
+This repository contains Atmos shader sources, required procedural textures, and its packaged shader release. StratosAPI's renderer code, tests and releases live in its own repository. Use the Stratos-built `horizon-shader` tool for validation and packaging.
+
+## Download
+
+Get [`Atmos-Shader-0.16.0.hshader`](releases/Atmos-Shader-0.16.0.hshader) and its [`SHA256SUMS`](releases/SHA256SUMS). Install StratosAPI first, import the `.hshader` into that instance, and select Atmos in Shader packs. WGSL compiles for your GPU at load time. The package contains no worlds, renderer binaries or development files.
 
 ## Features
 
