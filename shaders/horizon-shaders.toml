@@ -103,7 +103,6 @@ file = "vertex.wgsl"
 [shadow]
 option = "mapped_shadows"
 distance_option = "shadow_distance"
-sun_path_rotation = 60.0
 resolution = 4096
 distance = 192.0
 resolution_option = "shadow_resolution"
