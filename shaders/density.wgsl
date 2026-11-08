@@ -11,12 +11,12 @@ fn noise3(p: vec3<f32>) -> f32 {
     return mix(a, b, u.z);
 }
 fn cloud_volume_at(p: vec3<f32>) -> vec4<f32> {
-    // 128 cubed, packed15x9 with wrapped one-texel gutters. Both atlas axes
-    // remain below Horizon's2048px limit; every RGBA channel is scalar data.
-    let q = fract(p) * 128.0;
-    let iz = u32(floor(q.z)); let next = (iz+1u)%128u;
-    let uv0 = (vec2<f32>(f32(iz%15u),f32(iz/15u))*130.0 + q.xy+1.5)/vec2<f32>(1950.0,1170.0);
-    let uv1 = (vec2<f32>(f32(next%15u),f32(next/15u))*130.0 + q.xy+1.5)/vec2<f32>(1950.0,1170.0);
+    // 71 cubed, packed15x5 with wrapped one-texel gutters. Both atlas axes
+    // remain below Horizon's2048px limit; all RGBA scalar channels are retained.
+    let q = fract(p) * 71.0;
+    let iz = u32(floor(q.z)); let next = (iz+1u)%71u;
+    let uv0 = (vec2<f32>(f32(iz%15u),f32(iz/15u))*73.0 + q.xy+1.5)/vec2<f32>(1095.0,365.0);
+    let uv1 = (vec2<f32>(f32(next%15u),f32(next/15u))*73.0 + q.xy+1.5)/vec2<f32>(1095.0,365.0);
     let a=textureSampleLevel(cloud_volume,cloud_volume_sampler,uv0,0.0);
     let b=textureSampleLevel(cloud_volume,cloud_volume_sampler,uv1,0.0);
     return mix(a,b,fract(q.z));

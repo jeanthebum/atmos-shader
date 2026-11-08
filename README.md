@@ -70,7 +70,7 @@ horizon-shader pack shaders --out Atmos-Shader-0.16.0.hshader
 
 Install the resulting `.hshader` through the compatible Horizon client's shader-pack menu. Package only `shaders/`; repository documentation and Git files do not belong inside the pack.
 
-Version 0.16.0 passed native validation of all 13 stages and a live GPU/leaf-droplet check on the Stratos-built client with no HDR environment override. It adds the explicit API dependency and generic weather-control mapping; the 17 WGSL programs and two data textures are unchanged from 0.15.2. No new performance benchmark is claimed.
+Version 0.16.0 passed native validation of all 13 stages and a live GPU/leaf-droplet check on the Stratos-built client with no HDR environment override. The cloud volume uses a 71-cubed RGBA atlas to stay below Horizon's 1 MiB PNG upload limit; its four channels and wrapped slice gutters are retained. No new performance benchmark is claimed.
 
 ## Current limitations
 
