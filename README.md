@@ -10,7 +10,7 @@ Atmos Shader is an original WGSL shader pack for Horizon, the Rust Minecraft cli
 
 Atmos now requires [StratosAPI](https://github.com/jeanthebum/stratos-api), a separately maintained Horizon native renderer mod. Install StratosAPI through the launcher's **Mods → Add from GitHub**, let it build the compatible instance, then restart and select Atmos. See the API repository for exact Horizon pins, installation steps and current limitations. This is not an Iris or OptiFine pack.
 
-The manifest declares `[stratos] api = ">=0.1.0, <0.2.0"`. Atmos releases and public API versions are independent. Stratos rejects incompatible packs before GPU compilation and automatically selects the floating-point scene renderer; an HDR environment override is no longer needed.
+The manifest uses Horizon schema 1 fields so it can pass Horizon pack review. Stratos-specific weather hooks are omitted because the review parser does not support them.
 
 This repository contains Atmos shader sources, required procedural textures, and its packaged shader release. StratosAPI's renderer code, tests and releases live in its own repository. Use the Stratos-built `horizon-shader` tool for validation and packaging.
 
@@ -25,7 +25,7 @@ Get [`Atmos-Shader-0.16.0.hshader`](releases/Atmos-Shader-0.16.0.hshader) and it
 - **Water:** procedural waves, Fresnel reflections, planar terrain mirrors, depth absorption, refraction, shallow-water clarity and golden sunset highlights.
 - **Vegetation:** animated leaves, grass and flowers with anchored roots.
 - **Biome atmosphere:** humid jungles, misty swamps, cool deep forests, desert heat shimmer, bright snow and subtle cherry-biome colour shifts. Biome light tint can be disabled independently.
-- **Rain and leaf drips:** procedural liquid shading, curved normals, refraction, sun highlights and impact rings, using geometry supplied by the custom renderer.
+- **Rain and puddles:** procedural rain shading, wet surfaces, refraction, sun highlights and surface impact rings.
 - **Finishing:** internal HDR lighting, bloom, ACES-style tonemapping, optional exposure adaptation and a configurable camera filter. Final output is SDR.
 
 ## Performance tuning
@@ -47,7 +47,7 @@ The `shaders/` directory is the complete pack: **17 WGSL files, one manifest and
 | `tonemap.wgsl` | Final display transform |
 | `cloud-volume.png`, `density-noise.png` | Procedural rendering data; required, not showcase images |
 
-The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings. Droplet capabilities now come from the public StratosAPI declaration and option mapping. The public name is **Atmos Shader**.
+The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings. Only Horizon schema 1 manifest fields are included; the separate Stratos weather extension is omitted for review compatibility. The public name is **Atmos Shader**.
 
 ## Validate and package
 
