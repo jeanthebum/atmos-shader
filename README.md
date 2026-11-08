@@ -4,15 +4,15 @@
 
 Atmos Shader is an original WGSL shader pack for Horizon, the Rust Minecraft client. It focuses on sunlit landscapes, volumetric clouds, reflective water and atmosphere that changes with the biome.
 
-**Version:** 0.15.2 · **Shader API:** custom Horizon 0.2 · **Status:** experimental
+**Version:** 0.16.0 · **Shader API:** StratosAPI 0.1.x (Horizon 0.2) · **Status:** experimental
 
 ## Runtime requirement
 
-This version depends on a **custom Horizon renderer**. Stock Horizon does not currently provide all of the extensions this pack uses. It is not an Iris or OptiFine shader pack.
+Atmos now requires [StratosAPI](https://github.com/jeanthebum/stratos-api), a separately maintained Horizon native renderer mod. Install StratosAPI through the launcher's **Mods → Add from GitHub**, let it build the compatible instance, then restart and select Atmos. See the API repository for exact Horizon pins, installation steps and current limitations. This is not an Iris or OptiFine pack.
 
-Required extensions include the expanded Frame uniform layout, reflection-depth and opaque-scene bindings, procedural water-droplet geometry, and native performance-profile bundles. The compatible renderer uses Horizon base commit `fd06d1c2650b52d8d4bb3d808ca73e55971ba717` with local renderer changes and `HORIZON_HDR_FRAME=float`.
+The manifest declares `[stratos] api = ">=0.1.0, <0.2.0"`. Atmos releases and public API versions are independent. Stratos rejects incompatible packs before GPU compilation and automatically selects the floating-point scene renderer; an HDR environment override is no longer needed.
 
-This repository contains the shader sources and their procedural data textures for review. Renderer binaries and the renderer patch are not included here. A compatible renderer is required to run or fully validate the shader.
+This repository contains only Atmos shader sources and required procedural textures. StratosAPI's renderer code, tests and releases live in its own repository. Use the Stratos-built `horizon-shader` tool for validation and packaging.
 
 ## Features
 
@@ -53,20 +53,20 @@ The `shaders/` directory is the complete pack: **17 WGSL files, one manifest and
 | `tonemap.wgsl` | Final display transform |
 | `cloud-volume.png`, `density-noise.png` | Procedural rendering data; required, not showcase images |
 
-The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings and the custom renderer's droplet integration. The public name is **Atmos Shader**.
+The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings. Droplet capabilities now come from the public StratosAPI declaration and option mapping. The public name is **Atmos Shader**.
 
 ## Validate and package
 
-With the compatible custom `horizon-shader` tool available:
+With the Stratos-built `horizon-shader` tool available:
 
 ```sh
 horizon-shader check shaders
-horizon-shader pack shaders --out Atmos-Shader-0.15.2.hshader
+horizon-shader pack shaders --out Atmos-Shader-0.16.0.hshader
 ```
 
 Install the resulting `.hshader` through the compatible Horizon client's shader-pack menu. Package only `shaders/`; repository documentation and Git files do not belong inside the pack.
 
-Version 0.15.2 passed native validation for all 13 stages, structural checks for all 20 pack files and live native-menu checks for the five presets. It is a rename of the tested 0.15.1 shader with unchanged rendering algorithms and texture data. No new benchmark is claimed for this release.
+Version 0.16.0 passed native validation of all 13 stages and a live GPU/leaf-droplet check on the Stratos-built client with no HDR environment override. It adds the explicit API dependency and generic weather-control mapping; the 17 WGSL programs and two data textures are unchanged from 0.15.2. No new performance benchmark is claimed.
 
 ## Current limitations
 

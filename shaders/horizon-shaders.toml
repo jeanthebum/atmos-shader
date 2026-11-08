@@ -1,10 +1,19 @@
 schema = 1
 id = "afterglow_hdr"
 name = "Atmos Shader"
-version = "0.15.2"
+version = "0.16.0"
 api = "0.2"
-description = "Lush wet jungles, refractive shader droplets and rain, layered biome mist and distinct landscapes. Requires the custom Horizon API 0.2 renderer."
+description = "Lush wet jungles, refractive shader droplets and rain, layered biome mist and distinct landscapes. Requires StratosAPI 0.1.x."
 shared = ["palette.wgsl", "environment.wgsl"]
+
+[stratos]
+api = ">=0.1.0, <0.2.0"
+
+[stratos.weather]
+liquid_droplets = true
+leaf_drips_option = "canopy_drips"
+humidity_option = "jungle_moisture"
+enabled_option = "biome_atmosphere"
 
 [sky]
 file = "sky.wgsl"
