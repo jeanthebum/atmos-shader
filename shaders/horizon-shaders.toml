@@ -1,0 +1,608 @@
+schema = 1
+id = "afterglow_hdr"
+name = "Atmos Shader"
+version = "0.15.2"
+api = "0.2"
+description = "Lush wet jungles, refractive shader droplets and rain, layered biome mist and distinct landscapes. Requires the custom Horizon API 0.2 renderer."
+shared = ["palette.wgsl", "environment.wgsl"]
+
+[sky]
+file = "sky.wgsl"
+clouds = false
+sun = false
+
+[[textures]]
+id = "density_noise"
+file = "density-noise.png"
+filter = "linear"
+wrap = "repeat"
+
+[[post]]
+file = "post/cloudscape.wgsl"
+files = ["density.wgsl"]
+name = "Cloudscape"
+output = "cloud_light"
+scale = 0.5
+
+[[post]]
+file = "post/cloud_composite.wgsl"
+name = "Cloud reconstruction"
+
+[[post]]
+file = "post/heat.wgsl"
+name = "Desert heat shimmer"
+
+[[post]]
+file = "post/shafts.wgsl"
+files = ["density.wgsl"]
+name = "God rays"
+output = "sun_rays"
+scale = 0.5
+
+[[post]]
+file = "post/bloom_horizontal.wgsl"
+name = "Bloom extraction and horizontal"
+output = "bloom_x"
+scale = 0.25
+
+[[post]]
+file = "post/bloom_vertical.wgsl"
+name = "Bloom vertical"
+output = "bloom_y"
+scale = 0.25
+
+[[post]]
+file = "post/grade.wgsl"
+name = "Contact shading and grade"
+
+[[post]]
+file = "post/antialias.wgsl"
+name = "Edge smoothing"
+
+[[options]]
+id = "saturation"
+name = "Saturation"
+type = "float"
+default = 1.05
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "brightness_gain"
+name = "Exposure"
+type = "float"
+default = 1.0
+min = 0.5
+max = 1.5
+step = 0.05
+
+[material]
+fog = false
+file = "material.wgsl"
+files = ["density.wgsl", "water.wgsl"]
+
+[reflection]
+option = "water_reflections"
+
+[weather]
+file = "weather.wgsl"
+
+[vertex]
+file = "vertex.wgsl"
+
+[shadow]
+option = "mapped_shadows"
+distance_option = "shadow_distance"
+sun_path_rotation = 60.0
+resolution = 4096
+distance = 192.0
+resolution_option = "shadow_resolution"
+
+[[materials]]
+id = 14
+sprites = ["block/cherry_leaves"]
+
+[[materials]]
+id = 20
+sprites = ["block/snow", "block/powder_snow"]
+
+[[materials]]
+id = 21
+sprites = ["block/ice", "block/packed_ice", "block/blue_ice"]
+
+[[materials]]
+id = 10
+sprites = ["block/*_leaves"]
+
+[[materials]]
+id = 11
+sprites = ["block/short_grass", "block/fern", "block/dandelion", "block/poppy", "block/blue_orchid", "block/allium", "block/azure_bluet", "block/*_tulip", "block/oxeye_daisy", "block/cornflower", "block/lily_of_the_valley", "block/wither_rose", "block/torchflower", "block/open_eyeblossom", "block/closed_eyeblossom"]
+
+[[materials]]
+id = 12
+sprites = ["block/tall_grass_bottom", "block/large_fern_bottom", "block/rose_bush_bottom", "block/peony_bottom", "block/lilac_bottom", "block/sunflower_bottom"]
+
+[[materials]]
+id = 13
+sprites = ["block/tall_grass_top", "block/large_fern_top", "block/rose_bush_top", "block/peony_top", "block/lilac_top", "block/sunflower_top", "block/sunflower_front", "block/sunflower_back"]
+
+[[lights]]
+blocks = ["soul_torch", "soul_wall_torch", "soul_lantern", "soul_fire"]
+color = [0.2, 0.65, 1.0]
+
+[[lights]]
+blocks = ["torch", "wall_torch", "lantern", "campfire", "fire", "lava"]
+color = [1.0, 0.57, 0.25]
+
+[[options]]
+id = "shadow_resolution"
+name = "Shadow resolution"
+type = "choice"
+values = ["1024", "2048", "4096", "512", "8192"]
+default = "4096"
+
+[[options]]
+id = "sunlight_strength"
+name = "Sunlight"
+type = "float"
+default = 3.4
+min = 0.2
+max = 6.0
+step = 0.05
+
+[[options]]
+id = "ambient_strength"
+name = "Ambient sky light"
+type = "float"
+default = 0.45
+min = 0.1
+max = 1.5
+step = 0.05
+
+[[options]]
+id = "shadow_softness"
+name = "Shadow softness"
+type = "float"
+default = 1.5
+min = 0.0
+max = 3.0
+step = 0.25
+
+[[options]]
+id = "foliage_transmission"
+name = "Backlit foliage"
+type = "float"
+default = 0.55
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "wind_strength"
+name = "Wind strength"
+type = "float"
+default = 0.7
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "wind_speed"
+name = "Wind speed"
+type = "float"
+default = 1.0
+min = 0.1
+max = 2.0
+step = 0.1
+
+[[options]]
+id = "bloom_strength"
+name = "Summer bloom"
+type = "float"
+default = 0.3
+min = 0.0
+max = 0.5
+step = 0.01
+
+[[options]]
+id = "rays_strength"
+name = "God ray strength"
+description = "Sunbeams through tree and cloud shadows. Zero disables the effect."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "edge_smoothing"
+name = "Edge smoothing"
+type = "float"
+default = 0.65
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "cloud_coverage"
+name = "Cloud coverage"
+type = "float"
+default = 0.38
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "cloud_density"
+name = "Cloud density"
+type = "float"
+default = 1.0
+min = 0.2
+max = 2.0
+step = 0.1
+
+[[pages]]
+id = "main"
+name = "Atmos Shader"
+items = ["performance_profile", "page:lighting", "page:atmosphere", "page:wind", "page:finish", "page:water", "page:biomes", "page:weather"]
+
+[[pages]]
+id = "lighting"
+name = "Lighting"
+items = ["sunlight_strength", "ambient_strength", "foliage_transmission", "mapped_shadows", "shadow_softness", "shadow_resolution", "shadow_distance", "cloud_shadows", "surface_sheen", "contact_shading"]
+
+[[pages]]
+id = "atmosphere"
+name = "Atmosphere"
+items = ["cloud_coverage", "cloud_density", "cloud_quality", "rays_strength", "rays_density", "rays_quality", "atmosphere_density"]
+
+[[pages]]
+id = "wind"
+name = "Wind"
+items = ["wind_strength", "wind_speed"]
+
+[[pages]]
+id = "finish"
+name = "Finishing"
+items = ["camera_filter", "filter_strength", "saturation", "brightness_gain", "bloom_strength", "edge_smoothing", "auto_exposure", "night_exposure", "contrast"]
+
+[[options]]
+id = "cloud_shadows"
+name = "Cloud shadows"
+type = "float"
+default = 0.45
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "surface_sheen"
+name = "Surface sheen"
+type = "float"
+default = 0.35
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "contact_shading"
+name = "Contact shading"
+type = "float"
+default = 0.5
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "cloud_quality"
+name = "Cloud quality"
+description = "High balances cloud detail and performance. Ultra adds fine detail at a substantial GPU cost."
+type = "choice"
+values = ["Fast", "High", "Ultra", "Off", "Low", "Cinematic"]
+default = "High"
+
+[[pages]]
+id = "water"
+name = "Water"
+items = ["water_reflections", "water_clarity", "water_cloud_reflections", "water_ripples"]
+
+[[options]]
+id = "water_reflections"
+name = "Water reflections"
+type = "bool"
+default = true
+
+[[options]]
+id = "water_clarity"
+name = "Water clarity"
+type = "float"
+default = 0.8
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[textures]]
+id = "cloud_volume"
+file = "cloud-volume.png"
+filter = "linear"
+wrap = "clamp"
+
+[[options]]
+id = "water_cloud_reflections"
+name = "Cloud reflections"
+description = "Reflect the moving clouds in water."
+type = "bool"
+default = true
+
+[[options]]
+id = "water_ripples"
+name = "Water ripples"
+type = "float"
+default = 0.6
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "auto_exposure"
+name = "Light adaptation"
+description = "Smooth exposure adaptation from centre-weighted scene luminance."
+type = "float"
+default = 0.0
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "contrast"
+name = "Contrast"
+type = "float"
+default = 1.05
+min = 0.8
+max = 1.2
+step = 0.01
+
+[[options]]
+id = "atmosphere_density"
+name = "Atmospheric density"
+description = "Haze and sunlight scattering through the cloud and terrain shadows."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[tonemap]
+file = "tonemap.wgsl"
+
+[frame]
+blend = "gamma"
+
+[[options]]
+id = "night_exposure"
+name = "Night exposure"
+type = "float"
+default = 2.6
+min = 1.0
+max = 6.0
+step = 0.2
+
+[[options]]
+id = "rays_density"
+name = "God ray density"
+description = "Airborne haze that reveals sunlight. Higher values give denser beams."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "rays_quality"
+name = "God ray quality"
+description = "High uses 64 depth samples; Ultra uses 96 and finer cloud shadows."
+type = "choice"
+values = ["Fast", "High", "Ultra", "Cinematic"]
+default = "High"
+
+[[options]]
+id = "biome_atmosphere"
+name = "Biome atmosphere"
+description = "Smooth biome-specific mist, water and light levels."
+type = "bool"
+default = true
+
+[[options]]
+id = "biome_light_tint"
+name = "Biome light tint"
+description = "Subtle local light colors, including green swamp and pink cherry bounce. Turn off for neutral lighting."
+type = "bool"
+default = true
+
+[[options]]
+id = "biome_mist"
+name = "Biome mist"
+description = "Humidity in jungles and swamps, and soft mist in deep woodland."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "swamp_water"
+name = "Swamp murk"
+description = "Suspended sediment absorbs light in swamp and mangrove water."
+type = "float"
+default = 1.0
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "snow_brightness"
+name = "Snow biome brightness"
+description = "Additional daylight and sky bounce in snowy and frozen biomes."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "heat_shimmer"
+name = "Desert heat shimmer"
+description = "Subtle distant refraction in hot, clear daytime conditions."
+type = "float"
+default = 0.65
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "weather_response"
+name = "Storm atmosphere"
+description = "Cloud cover, cloud darkening and wet-weather haze follow rain and thunder."
+type = "float"
+default = 1.0
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "rain_detail"
+name = "Rain droplets and rings"
+description = "Density of procedural water rain, with refraction, curved highlights and impact ripples."
+type = "float"
+default = 1.0
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "puddle_strength"
+name = "Rain puddles"
+description = "Wet reflective patches on open solid ground; builds with rainfall and dries gradually."
+type = "float"
+default = 0.7
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "camera_filter"
+name = "Camera filter"
+description = "Subtle warm highlights and cool open shadows. No blur or added grain."
+type = "bool"
+default = true
+
+[[options]]
+id = "filter_strength"
+name = "Camera filter strength"
+description = "Blend the photographic finish with the original Atmos colors."
+type = "float"
+default = 0.45
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[pages]]
+id = "biomes"
+name = "Biomes"
+items = ["biome_atmosphere", "biome_character", "biome_light_tint", "jungle_moisture", "canopy_drips", "biome_mist", "swamp_water", "snow_brightness", "heat_shimmer"]
+
+[[pages]]
+id = "weather"
+name = "Rain and storms"
+items = ["weather_response", "rain_detail", "puddle_strength"]
+
+[[options]]
+id = "biome_character"
+name = "Biome character"
+description = "Strength of distinct forest, tropical, arid, snowy and coastal moods."
+type = "float"
+default = 1.25
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "jungle_moisture"
+name = "Jungle moisture"
+description = "Persistent leaf dew, damp soil, drifting humidity and tropical condensation."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "canopy_drips"
+name = "Leaf drips"
+description = "Clear water beads grow beneath leaves, fall and form impact rings. Tropical leaves drip in clear weather; other leaves drain after rain. Zero disables."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[materials]]
+id = 15
+sprites = ["block/vine", "block/bamboo_small_leaves", "block/bamboo_large_leaves"]
+
+[[materials]]
+id = 22
+sprites = ["block/grass_block_top", "block/dirt", "block/coarse_dirt", "block/rooted_dirt", "block/podzol_top", "block/mud", "block/moss_block"]
+
+[[materials]]
+id = 23
+sprites = ["block/*_log", "block/*_wood"]
+
+[[options]]
+id = "performance_profile"
+name = "Performance profile"
+description = "Choose a hardware budget. Editing its quality settings switches to Custom; lighting colour and exposure are preserved."
+type = "choice"
+values = ["potato", "medium", "high", "ultra", "rich kid", "Custom"]
+default = "ultra"
+
+[[options]]
+id = "mapped_shadows"
+name = "Mapped shadows"
+description = "Render a shadow map for detailed terrain and foliage shadows."
+type = "bool"
+default = true
+
+[[options]]
+id = "shadow_distance"
+name = "Shadow distance"
+description = "Shadow-map coverage in blocks. Larger coverage draws more terrain."
+type = "choice"
+values = ["64", "96", "128", "192", "256", "384"]
+default = "192"
+
+[profiles]
+option = "performance_profile"
+custom = "Custom"
+
+[[profiles.presets]]
+value = "potato"
+values = {mapped_shadows = false, shadow_resolution = "512", shadow_distance = "64", cloud_quality = "Off", water_reflections = false, water_cloud_reflections = false, rays_strength = 0.0, rays_quality = "Fast", contact_shading = 0.0, bloom_strength = 0.0, cloud_shadows = 0.0, biome_mist = 0.0, canopy_drips = 0.0, rain_detail = 0.25, puddle_strength = 0.0}
+
+[[profiles.presets]]
+value = "medium"
+values = {mapped_shadows = true, shadow_resolution = "1024", shadow_distance = "96", cloud_quality = "Low", water_reflections = false, water_cloud_reflections = false, rays_strength = 0.0, rays_quality = "Fast", contact_shading = 0.0, bloom_strength = 0.0, cloud_shadows = 0.0, biome_mist = 0.45, canopy_drips = 0.35, rain_detail = 0.45, puddle_strength = 0.25}
+
+[[profiles.presets]]
+value = "high"
+values = {mapped_shadows = true, shadow_resolution = "2048", shadow_distance = "128", cloud_quality = "Fast", water_reflections = true, water_cloud_reflections = false, rays_strength = 0.7, rays_quality = "Fast", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.3, biome_mist = 0.8, canopy_drips = 0.7, rain_detail = 0.7, puddle_strength = 0.6}
+
+[[profiles.presets]]
+value = "ultra"
+values = {mapped_shadows = true, shadow_resolution = "4096", shadow_distance = "192", cloud_quality = "High", water_reflections = true, water_cloud_reflections = true, rays_strength = 1.0, rays_quality = "High", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.45, biome_mist = 1.0, canopy_drips = 1.0, rain_detail = 1.0, puddle_strength = 0.7}
+
+[[profiles.presets]]
+value = "rich kid"
+values = {mapped_shadows = true, shadow_resolution = "8192", shadow_distance = "256", cloud_quality = "Cinematic", water_reflections = true, water_cloud_reflections = true, rays_strength = 1.0, rays_quality = "Cinematic", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.45, biome_mist = 1.0, canopy_drips = 1.0, rain_detail = 1.0, puddle_strength = 0.7}
+

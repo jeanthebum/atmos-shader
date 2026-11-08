@@ -1,0 +1,5 @@
+build/
+*.hshader
+*.log
+.DS_Store
+Thumbs.db
