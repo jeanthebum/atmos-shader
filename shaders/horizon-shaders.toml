@@ -254,7 +254,7 @@ step = 0.1
 [[pages]]
 id = "main"
 name = "Atmos Shader"
-items = ["performance_profile", "page:lighting", "page:atmosphere", "page:wind", "page:finish", "page:water", "page:biomes", "page:weather"]
+items = ["page:lighting", "page:atmosphere", "page:wind", "page:finish", "page:water", "page:biomes", "page:weather"]
 
 [[pages]]
 id = "lighting"
@@ -569,14 +569,6 @@ id = 23
 sprites = ["block/*_log", "block/*_wood"]
 
 [[options]]
-id = "performance_profile"
-name = "Performance profile"
-description = "Choose a hardware budget. Editing its quality settings switches to Custom; lighting colour and exposure are preserved."
-type = "choice"
-values = ["potato", "medium", "high", "ultra", "rich kid", "Custom"]
-default = "ultra"
-
-[[options]]
 id = "mapped_shadows"
 name = "Mapped shadows"
 description = "Render a shadow map for detailed terrain and foliage shadows."
@@ -590,28 +582,4 @@ description = "Shadow-map coverage in blocks. Larger coverage draws more terrain
 type = "choice"
 values = ["64", "96", "128", "192", "256", "384"]
 default = "192"
-
-[profiles]
-option = "performance_profile"
-custom = "Custom"
-
-[[profiles.presets]]
-value = "potato"
-values = {mapped_shadows = false, shadow_resolution = "512", shadow_distance = "64", cloud_quality = "Off", water_reflections = false, water_cloud_reflections = false, rays_strength = 0.0, rays_quality = "Fast", contact_shading = 0.0, bloom_strength = 0.0, cloud_shadows = 0.0, biome_mist = 0.0, canopy_drips = 0.0, rain_detail = 0.25, puddle_strength = 0.0}
-
-[[profiles.presets]]
-value = "medium"
-values = {mapped_shadows = true, shadow_resolution = "1024", shadow_distance = "96", cloud_quality = "Low", water_reflections = false, water_cloud_reflections = false, rays_strength = 0.0, rays_quality = "Fast", contact_shading = 0.0, bloom_strength = 0.0, cloud_shadows = 0.0, biome_mist = 0.45, canopy_drips = 0.35, rain_detail = 0.45, puddle_strength = 0.25}
-
-[[profiles.presets]]
-value = "high"
-values = {mapped_shadows = true, shadow_resolution = "2048", shadow_distance = "128", cloud_quality = "Fast", water_reflections = true, water_cloud_reflections = false, rays_strength = 0.7, rays_quality = "Fast", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.3, biome_mist = 0.8, canopy_drips = 0.7, rain_detail = 0.7, puddle_strength = 0.6}
-
-[[profiles.presets]]
-value = "ultra"
-values = {mapped_shadows = true, shadow_resolution = "4096", shadow_distance = "192", cloud_quality = "High", water_reflections = true, water_cloud_reflections = true, rays_strength = 1.0, rays_quality = "High", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.45, biome_mist = 1.0, canopy_drips = 1.0, rain_detail = 1.0, puddle_strength = 0.7}
-
-[[profiles.presets]]
-value = "rich kid"
-values = {mapped_shadows = true, shadow_resolution = "8192", shadow_distance = "256", cloud_quality = "Cinematic", water_reflections = true, water_cloud_reflections = true, rays_strength = 1.0, rays_quality = "Cinematic", contact_shading = 0.5, bloom_strength = 0.3, cloud_shadows = 0.45, biome_mist = 1.0, canopy_drips = 1.0, rain_detail = 1.0, puddle_strength = 0.7}
 

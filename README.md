@@ -28,19 +28,9 @@ Get [`Atmos-Shader-0.16.0.hshader`](releases/Atmos-Shader-0.16.0.hshader) and it
 - **Rain and leaf drips:** procedural liquid shading, curved normals, refraction, sun highlights and impact rings, using geometry supplied by the custom renderer.
 - **Finishing:** internal HDR lighting, bloom, ACES-style tonemapping, optional exposure adaptation and a configurable camera filter. Final output is SDR.
 
-## Performance profiles
+## Performance tuning
 
-Select **Shader packs → General → Performance profile** in the compatible client.
-
-| Profile | Main settings |
-| --- | --- |
-| **potato** | Sunlight and animated vegetation; volumetric clouds, mapped shadows, mirrors, shafts, bloom and canopy beads disabled. |
-| **medium** | 1024 shadows at 96 blocks, Low clouds and lighter biome/weather effects. |
-| **high** | 2048 shadows at 128 blocks, Fast clouds and shafts, terrain reflections. |
-| **ultra** | 4096 shadows at 192 blocks, High clouds and shafts, reflected clouds and full biome atmosphere. |
-| **rich kid** | 8192 shadows at 256 blocks, Cinematic clouds and 128-sample god rays. |
-
-**Custom** preserves manual quality settings. Profiles leave exposure, sunlight colour, camera filter, biome tint and wind controls intact. The default is Ultra; High offers a more moderate GPU budget. Actual performance depends on resolution, scene, render distance and hardware.
+Tune shadow resolution and distance, cloud quality, reflections, god rays, bloom and biome effects individually in the pack settings. This keeps the pack compatible with Horizon's schema 1 manifest reader.
 
 ## Source layout
 
@@ -48,7 +38,7 @@ The `shaders/` directory is the complete pack: **17 WGSL files, one manifest and
 
 | Files | Purpose |
 | --- | --- |
-| `horizon-shaders.toml` | Stages, textures, material tags, settings pages and performance presets |
+| `horizon-shaders.toml` | Stages, textures, material tags, settings pages and individual quality controls |
 | `palette.wgsl`, `environment.wgsl` | Lighting palette and biome/weather response |
 | `sky.wgsl`, `density.wgsl` | Sky and cloud-density model |
 | `material.wgsl`, `vertex.wgsl` | Terrain/foliage lighting and vegetation motion |
@@ -70,7 +60,7 @@ horizon-shader pack shaders --out Atmos-Shader-0.16.0.hshader
 
 Install the resulting `.hshader` through the compatible Horizon client's shader-pack menu. Package only `shaders/`; repository documentation and Git files do not belong inside the pack.
 
-Version 0.16.0 passed native validation of all 13 stages and a live GPU/leaf-droplet check on the Stratos-built client with no HDR environment override. The cloud volume uses a 71-cubed RGBA atlas to stay below Horizon's 1 MiB PNG upload limit; its four channels and wrapped slice gutters are retained. No new performance benchmark is claimed.
+The cloud volume uses a 71-cubed RGBA atlas to stay below Horizon's 1 MiB PNG upload limit; its four channels and wrapped slice gutters are retained. Performance settings are individual options because schema 1 does not define automatic multi-option profiles.
 
 ## Current limitations
 
