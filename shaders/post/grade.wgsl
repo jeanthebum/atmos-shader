@@ -100,7 +100,7 @@ fn post(input: PostInput) -> vec4<f32> {
         color=color*transmission+water_fog*(vec3<f32>(1.0)-transmission);
     } else if (frame.eye_in>=2u || frame.dimension!=0) {
         let travel=length(view_position(input.uv,max(input.depth,0.00001)));
-        let fog=smoothstep(frame.fog_start,max(frame.fog_end,frame.fog_start+0.01),travel);
+        let fog=smoothstep(frame.fog_environment.x,max(frame.fog_environment.y,frame.fog_environment.x+0.01),travel);
         color=mix(color,frame.fog_color,fog);
     }
     // This second-to-last pass receives its previous output in history.

@@ -19,17 +19,17 @@ override puddle_strength: f32 = 0.7;
 fn environment_active() -> f32 {
     return select(0.0,1.0,biome_atmosphere && frame.dimension==0);
 }
-fn jungle_weight() -> f32 {return frame.biome_jungle*environment_active();}
-fn swamp_weight() -> f32 {return frame.biome_swamp*environment_active();}
-fn taiga_weight() -> f32 {return frame.biome_taiga*environment_active();}
-fn forest_weight() -> f32 {return frame.biome_other.x*environment_active();}
-fn arid_weight() -> f32 {return frame.biome_other.y*environment_active();}
-fn frost_weight() -> f32 {return frame.biome_other.z*environment_active();}
-fn cherry_weight() -> f32 {return frame.biome_other.w*environment_active();}
-fn plains_weight() -> f32 {return frame.biome_landscape.x*environment_active();}
-fn temperate_weight() -> f32 {return frame.biome_landscape.y*environment_active();}
-fn coast_weight() -> f32 {return frame.biome_landscape.z*environment_active();}
-fn savanna_weight() -> f32 {return frame.biome_landscape.w*environment_active();}
+fn jungle_weight() -> f32 {return frame.mods[0].x*environment_active();}
+fn swamp_weight() -> f32 {return frame.mods[0].y*environment_active();}
+fn taiga_weight() -> f32 {return frame.mods[0].z*environment_active();}
+fn forest_weight() -> f32 {return frame.mods[0].w*environment_active();}
+fn arid_weight() -> f32 {return frame.mods[1].x*environment_active();}
+fn frost_weight() -> f32 {return frame.mods[1].y*environment_active();}
+fn cherry_weight() -> f32 {return frame.mods[1].z*environment_active();}
+fn plains_weight() -> f32 {return frame.mods[1].w*environment_active();}
+fn temperate_weight() -> f32 {return frame.mods[2].x*environment_active();}
+fn coast_weight() -> f32 {return frame.mods[2].y*environment_active();}
+fn savanna_weight() -> f32 {return frame.mods[2].z*environment_active();}
 fn humid_wetness() -> f32 {return clamp((jungle_weight()*0.78+swamp_weight()*0.3)*jungle_moisture,0.0,1.0);}
 fn storm_amount() -> f32 {return clamp((frame.rain*0.72+frame.thunder*0.48)*weather_response,0.0,1.0);}
 fn local_rain() -> f32 {

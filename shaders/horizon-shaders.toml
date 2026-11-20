@@ -1,7 +1,7 @@
 schema = 1
 id = "afterglow_hdr"
 name = "Atmos Shader"
-version = "0.16.0"
+version = "0.16.1-dev"
 api = "0.2"
 description = "Lush wet jungles, detailed rain, layered biome mist and distinct landscapes."
 shared = ["palette.wgsl", "environment.wgsl"]
