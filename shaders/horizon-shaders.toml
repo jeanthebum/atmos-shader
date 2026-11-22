@@ -1,7 +1,7 @@
 schema = 1
 id = "afterglow_hdr"
 name = "Atmos Shader"
-version = "0.16.1-dev"
+version = "0.16.2"
 api = "0.2"
 description = "Lush wet jungles, detailed rain, layered biome mist and distinct landscapes."
 shared = ["palette.wgsl", "environment.wgsl"]
@@ -51,8 +51,23 @@ name = "Bloom vertical"
 output = "bloom_y"
 scale = 0.25
 
+[[resource]]
+name = "exposure_value"
+format = "r32float"
+size = [1, 1]
+keep = "view"
+
+[[post]]
+compute = true
+file = "post/exposure.wgsl"
+dispatch = [1, 1, 1]
+workgroup = [1, 1, 1]
+reads = ["exposure_value_previous"]
+writes = ["exposure_value"]
+
 [[post]]
 file = "post/grade.wgsl"
+reads = ["exposure_value"]
 name = "Contact shading and grade"
 
 [[post]]
@@ -572,4 +587,3 @@ description = "Shadow-map coverage in blocks. Larger coverage draws more terrain
 type = "choice"
 values = ["64", "96", "128", "192", "256", "384"]
 default = "192"
-

@@ -22,28 +22,24 @@ fn water_scene_color(uv: vec2<f32>) -> vec3<f32> {
     return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
 }
 
-// Requires the experimental engine's material binding 5: reflection_depth.
-// Gather colour and reversed depth together. RGB contains only reflected terrain,
-// premultiplied by its coverage; alpha is uncovered sky. Replacing sky after this
-// gather preserves leaf holes and silhouettes without blending terrain away.
 fn water_mirror_sample(uv: vec2<f32>) -> vec4<f32> {
-    let dims=vec2<i32>(textureDimensions(reflection_depth));
+    let dims=vec2<i32>(textureDimensions(reflection));
     let grid=uv*vec2<f32>(dims)-0.5;
     let p=vec2<i32>(floor(grid));
     let f=fract(grid);
     var terrain=vec3<f32>(0.0);
-    var sky_coverage=0.0;
+
     for(var y=0;y<2;y=y+1) {
         for(var x=0;x<2;x=x+1) {
             let q=clamp(p+vec2<i32>(x,y),vec2<i32>(0),dims-1);
             let w=select(1.0-f.x,f.x,x==1)*select(1.0-f.y,f.y,y==1);
-            let is_sky=textureLoad(reflection_depth,q,0)<=0.0;
+
             let texel=textureLoad(reflection,q,0).rgb;
-            terrain+=texel*w*select(1.0,0.0,is_sky);
-            sky_coverage+=w*select(0.0,1.0,is_sky);
+            terrain+=texel*w;
+
         }
     }
-    return vec4<f32>(terrain,sky_coverage);
+    return vec4<f32>(terrain,0.0);
 }
 
 fn water_sky(ray: vec3<f32>) -> vec3<f32> {
@@ -241,19 +237,6 @@ fn water_waves(p: vec2<f32>, seconds: f32) -> vec3<f32> {
     return vec3<f32>(slope,variance);
 }
 
-fn water_mirror_depth(uv: vec2<f32>) -> f32 {
-    let dims=vec2<i32>(textureDimensions(reflection_depth));
-    return textureLoad(reflection_depth,clamp(vec2<i32>(uv*vec2<f32>(dims)),vec2<i32>(0),dims-1),0);
-}
-
-// Mirror-camera positions are not ordinary scene positions. Undo the vertical
-// reflection and virtual-eye offset before measuring a water-to-terrain ray.
-fn water_mirror_position(uv: vec2<f32>, depth: f32) -> vec3<f32> {
-    let v=frame.projection_inverse*vec4<f32>(uv.x*2.0-1.0,1.0-uv.y*2.0,depth,1.0);
-    let p=(frame.view_inverse*vec4<f32>(v.xyz/v.w,0.0)).xyz;
-    return p*vec3<f32>(1.0,-1.0,1.0)+vec3<f32>(0.0,2.0*(frame.water_plane-frame.camera_position.y),0.0);
-}
-
 fn water_mirror_project(p: vec3<f32>) -> vec2<f32> {
     let offset=vec3<f32>(0.0,2.0*(frame.water_plane-frame.camera_position.y),0.0);
     let clip=frame.projection*frame.view*vec4<f32>((p-offset)*vec3<f32>(1.0,-1.0,1.0),1.0);
@@ -263,22 +246,10 @@ fn water_mirror_project(p: vec3<f32>) -> vec2<f32> {
 
 fn water_reflection_uv(origin: vec3<f32>, screen: vec2<f32>, ray: vec3<f32>) -> vec2<f32> {
     let flat=reflect(normalize(origin),vec3<f32>(0.0,1.0,0.0));
-    let initial_depth=water_mirror_depth(screen);
-    var distance=frame.render_distance*2.0;
-    if(initial_depth>0.0) {
-        distance=clamp(dot(water_mirror_position(screen,initial_depth)-origin,flat),0.05,2000.0);
-    }
-    var uv=water_mirror_project(origin+ray*distance);
-    // Two depth-guided projections account for the reflected object's distance:
-    // nearby reeds barely shift, distant trees stretch across moving ripples.
-    for(var i=0;i<2;i=i+1) {
-        if(any(uv<=vec2<f32>(0.001)) || any(uv>=vec2<f32>(0.999))) {break;}
-        let depth=water_mirror_depth(uv);
-        if(depth<=0.0) {break;}
-        let hit=water_mirror_position(uv,depth);
-        distance=clamp(dot(hit-origin,ray),0.05,2000.0);
-        uv=water_mirror_project(origin+ray*distance);
-    }
+    // Project the change in ray direction; keep the undisturbed mirror aligned.
+    let reach=clamp(length(origin),2.0,48.0);
+    let shift=water_mirror_project(origin+ray*reach)-water_mirror_project(origin+flat*reach);
+    let uv=screen+clamp(shift,vec2<f32>(-0.08),vec2<f32>(0.08));
     return uv;
 }
 
@@ -290,7 +261,7 @@ fn water_safe_mirror(uv: vec2<f32>) -> vec4<f32> {
 }
 
 fn water_rough_mirror(uv: vec2<f32>, alpha: f32, view: vec3<f32>) -> vec4<f32> {
-    let pixel=1.0/vec2<f32>(textureDimensions(reflection_depth));
+    let pixel=1.0/vec2<f32>(textureDimensions(reflection));
     // Unresolved slopes broaden the reflection cone; reflection is less sensitive
     // to cross-wind microfacets when the view grazes the surface.
     let radius=clamp(vec2<f32>(frame.projection[0][0],frame.projection[1][1])
@@ -357,8 +328,20 @@ fn summer_water(input: MaterialInput) -> Surface {
         // The mirror target has no mip chain. Filter both terrain and uncovered
         // sky coverage together, so a softened silhouette cannot acquire a halo.
         let reflected=water_rough_mirror(reflection_uv,sqrt(alpha_squared),view);
-        sky_weight=reflected.a;
-        mirror=reflected.rgb+clear_sky*sky_weight;
+        // The color mirror has no depth attachment exposed to packs. Confirm sky
+        // against the visible scene in the reflected direction when on screen.
+        let clip=frame.projection*frame.view*vec4<f32>(reflected_ray,0.0);
+        var visible_sky=0.0;
+        if(clip.w>0.001 && reflected_ray.y>0.0) {
+            let uv=vec2<f32>(0.5,-0.5)*clip.xy/clip.w+0.5;
+            if(all(uv>vec2<f32>(0.0)) && all(uv<vec2<f32>(1.0))) {
+                let dims=vec2<i32>(textureDimensions(opaque_depth));
+                let d=textureLoad(opaque_depth,clamp(vec2<i32>(uv*vec2<f32>(dims)),vec2<i32>(0),dims-1),0);
+                visible_sky=select(0.0,1.0,d<=0.0)*smoothstep(0.12,0.45,reflected_ray.y);
+            }
+        }
+        sky_weight=mix(reflected.a,1.0,visible_sky);
+        mirror=reflected.rgb*(1.0-visible_sky)+clear_sky*sky_weight;
     }
     if (water_cloud_reflections && water_reflections && sky_weight>0.001) {
         let cloudy_sky=reflected_clouds(world,reflected_ray,clear_sky);
