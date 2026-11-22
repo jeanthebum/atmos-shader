@@ -4,19 +4,15 @@
 
 Atmos Shader is an original WGSL shader pack for Horizon, the Rust Minecraft client. It focuses on sunlit landscapes, volumetric clouds, reflective water and atmosphere that changes with the biome.
 
-**Version:** 0.16.0 · **Shader API:** StratosAPI 0.1.x (Horizon 0.2) · **Status:** experimental
+**Version:** 0.16.3 · **Shader API:** StratosAPI 0.1.2-dev.2 (Horizon shader API 0.2) · **Status:** experimental
 
 ## Runtime requirement
 
-Atmos now requires [StratosAPI](https://github.com/jeanthebum/stratos-api), a separately maintained Horizon native renderer mod. Install StratosAPI through the launcher's **Mods → Add from GitHub**, let it build the compatible instance, then restart and select Atmos. See the API repository for exact Horizon pins, installation steps and current limitations. This is not an Iris or OptiFine pack.
-
-The manifest uses Horizon schema 1 fields so it can pass Horizon pack review. Stratos-specific weather hooks are omitted because the review parser does not support them.
-
-This repository contains Atmos shader sources, required procedural textures, and its packaged shader release. StratosAPI's renderer code, tests and releases live in its own repository. Use the Stratos-built `horizon-shader` tool for validation and packaging.
+Use Horizon Nightly 2026-11-19 (commit `5ef7734`) and install [StratosAPI 0.1.2-dev.2](https://github.com/jeanthebum/stratos-api/blob/main/releases/StratosAPI-0.1.2-dev.2.hmod) as a native mod through the launcher. Let the launcher build the instance, then select Atmos in that instance's shader packs menu.
 
 ## Download
 
-Get [`Atmos-Shader-0.16.0.hshader`](releases/Atmos-Shader-0.16.0.hshader) and its [`SHA256SUMS`](releases/SHA256SUMS). Install StratosAPI first, import the `.hshader` into that instance, and select Atmos in Shader packs. WGSL compiles for your GPU at load time. The package contains no worlds, renderer binaries or development files.
+Get [`Atmos-Shader-0.16.3.hshader`](releases/Atmos-Shader-0.16.3.hshader) and its [`SHA256SUMS`](releases/SHA256SUMS). Install StratosAPI first, import the `.hshader` into that instance, and select Atmos in Shader packs. WGSL compiles for your GPU at load time. The package contains no worlds, renderer binaries or development files.
 
 ## Features
 
@@ -30,11 +26,19 @@ Get [`Atmos-Shader-0.16.0.hshader`](releases/Atmos-Shader-0.16.0.hshader) and it
 
 ## Performance tuning
 
-Tune shadow resolution and distance, cloud quality, reflections, god rays, bloom and biome effects individually in the pack settings. This keeps the pack compatible with Horizon's schema 1 manifest reader.
+Open **Shader packs → General → Performance preset**. New installations start on **Medium**. You can still adjust individual effects.
+
+| Preset | What changes |
+| --- | --- |
+| Potato | Clear sky, with volumetric clouds, sun shafts, bloom and edge smoothing disabled. |
+| Low | Adds a low-sample volumetric cloud layer. Sun shafts and contact shading stay off. |
+| Medium | Adds more cloud detail, contact shading and a short sun shaft pass. |
+| High | Increases sky and shaft sampling and allows detailed clouds in water reflections. |
+| NASA | Uses the largest cloud and atmospheric sampling budgets. |
 
 ## Source layout
 
-The `shaders/` directory is the complete pack: **17 WGSL files, one manifest and two required procedural PNG textures**.
+The `shaders/` directory is the complete pack: **18 WGSL files, one manifest and two required procedural PNG textures**.
 
 | Files | Purpose |
 | --- | --- |
@@ -47,20 +51,20 @@ The `shaders/` directory is the complete pack: **17 WGSL files, one manifest and
 | `tonemap.wgsl` | Final display transform |
 | `cloud-volume.png`, `density-noise.png` | Procedural rendering data; required, not showcase images |
 
-The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings. Only Horizon schema 1 manifest fields are included; the separate Stratos weather extension is omitted for review compatibility. The public name is **Atmos Shader**.
+The manifest retains the internal ID `afterglow_hdr` for compatibility with earlier saved settings. The public name is **Atmos Shader**.
 
 ## Validate and package
 
-With the Stratos-built `horizon-shader` tool available:
+Use the `horizon-shader` tool from the matching Horizon Nightly.
 
 ```sh
 horizon-shader check shaders
-horizon-shader pack shaders --out Atmos-Shader-0.16.0.hshader
+horizon-shader pack shaders --out Atmos-Shader-0.16.3.hshader
 ```
 
 Install the resulting `.hshader` through the compatible Horizon client's shader-pack menu. Package only `shaders/`; repository documentation and Git files do not belong inside the pack.
 
-The cloud volume uses a 71-cubed RGBA atlas to stay below Horizon's 1 MiB PNG upload limit; its four channels and wrapped slice gutters are retained. Performance settings are individual options because schema 1 does not define automatic multi-option profiles.
+The cloud volume uses a 71-cubed RGBA atlas to stay below Horizon's 1 MiB PNG upload limit; its four channels and wrapped slice gutters are retained.
 
 ## Current limitations
 

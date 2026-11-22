@@ -5,7 +5,7 @@ fn cloud_phase(mu: f32, g: f32) -> f32 {
 }
 
 fn post(input: PostInput) -> vec4<f32> {
-    if (frame.dimension != 0 || frame.eye_in != 0u || cloud_coverage <= 0.0 || cloud_quality == 3u) { return vec4<f32>(0.0); }
+    if (performance_profile == 0u || frame.dimension != 0 || frame.eye_in != 0u || cloud_coverage <= 0.0 || cloud_quality == 3u) { return vec4<f32>(0.0); }
     let endpoint = view_position(input.uv, max(input.depth, 0.000001));
     let ray = normalize(endpoint);
     if (abs(ray.y) < 0.008) { return vec4<f32>(0.0); }
@@ -16,11 +16,11 @@ fn post(input: PostInput) -> vec4<f32> {
     let end = min(min(max(bottom, top), 3000.0), terrain_end);
     if (end <= start) { return vec4<f32>(0.0); }
     // Spend extra samples where low-angle rays travel far through the cloud layer.
-    let base_steps_raw = select(select(select(64, 128, cloud_quality == 1u), 256, cloud_quality >= 2u && cloud_quality != 4u),32,cloud_quality==4u);
-    let base_steps=select(base_steps_raw,384,cloud_quality==5u);
-    let target_stride_raw = select(select(select(4.5, 2.0, cloud_quality == 1u), 0.75, cloud_quality >= 2u && cloud_quality != 4u),7.0,cloud_quality==4u);
-    let target_stride=select(target_stride_raw,0.5,cloud_quality==5u);
-    let steps = clamp(i32(ceil((end-start)/target_stride)),base_steps,base_steps*5);
+    let tier=min(performance_profile,4u);
+    let max_steps=array<i32,5>(0,32,80,192,512)[tier];
+    let light_budget=array<i32,5>(0,3,6,12,20)[tier];
+    let scale=array<f32,6>(0.75,1.0,1.25,0.0,0.5,1.5)[min(cloud_quality,5u)];
+    let steps=clamp(i32(ceil((end-start)*scale/3.0)),8,max(max_steps,8));
     let stride = (end - start) / f32(steps);
     let sun = frame.light_direction;
     let day = smoothstep(-0.08, 0.18, frame.sun_direction.y);
@@ -38,12 +38,12 @@ fn post(input: PostInput) -> vec4<f32> {
     var transmission = 1.0; var radiance = vec3<f32>(0.0);
     var cached_energy=vec3<f32>(0.0);
     var has_lighting=false;
-    let lighting_interval=select(select(select(3,2,cloud_quality==1u),1,cloud_quality>=2u && cloud_quality!=4u),4,cloud_quality==4u);
+    let lighting_interval=array<i32,5>(8,6,4,2,1)[tier];
     var distance=start+jitter*stride;
     for (var i = 0; i < steps; i = i + 1) {
         if(distance>=end) {break;}
         let p = frame.camera_position + ray * distance;
-        let density = cloud_mass(p, true);
+        let density = cloud_mass(p, tier>=2u);
         if (density < 0.002) {
             // Fine integration resumes as soon as we enter a visible bank.
             // Empty sky needs no expensive lighting and tolerates longer steps.
@@ -54,11 +54,9 @@ fn post(input: PostInput) -> vec4<f32> {
         if(!has_lighting || (transmission>0.015 && i%lighting_interval==0)) {
         var optical=0.0;
         var light_travel=0.0;
-        let light_steps_raw=select(select(select(9,12,cloud_quality==1u),16,cloud_quality>=2u && cloud_quality!=4u),6,cloud_quality==4u);
-        let light_steps=select(light_steps_raw,20,cloud_quality==5u);
-        let fine_probes_raw=select(select(select(4,7,cloud_quality==1u),10,cloud_quality>=2u && cloud_quality!=4u),2,cloud_quality==4u);
-        let fine_probes=select(fine_probes_raw,14,cloud_quality==5u);
-        let probe_growth=select(1.5,1.4,cloud_quality>=2u && cloud_quality!=4u);
+        let light_steps=light_budget;
+        let fine_probes=light_steps/2;
+        let probe_growth=select(1.55,1.4,tier>=3u);
         let cone_axis=normalize(cross(sun,vec3<f32>(0.0,1.0,0.01)));
         for(var j=0;j<light_steps;j=j+1) {
             let width=pow(probe_growth,f32(j));

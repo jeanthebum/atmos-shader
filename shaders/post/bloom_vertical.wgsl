@@ -1,5 +1,5 @@
 fn post(input: PostInput) -> vec4<f32> {
-    if(bloom_strength<=0.0) {return vec4<f32>(0.0);}
+    if(performance_profile==0u || bloom_strength<=0.0) {return vec4<f32>(0.0);}
     let px = 1.0 / vec2<f32>(textureDimensions(bloom_x));
     var color = vec3<f32>(0.0); var total = 0.0;
     for (var i = -4; i <= 4; i = i + 1) {

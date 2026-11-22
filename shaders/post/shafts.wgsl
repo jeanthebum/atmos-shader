@@ -5,7 +5,7 @@ override rays_quality: u32 = 1u;
 // Sunlight reaching air through the same moving cloud volume as the sky.
 // Cache along the view ray, not across unrelated pixels.
 fn beam_cloud_visibility(world: vec3<f32>) -> f32 {
-    if (cloud_coverage <= 0.0) { return 1.0; }
+    if (performance_profile <= 2u || cloud_coverage <= 0.0) { return 1.0; }
     let sun = frame.sun_direction;
     let start = max((185.0 - world.y) / max(sun.y, 0.025), 0.0);
     let end = max((340.0 - world.y) / max(sun.y, 0.025), start);
@@ -35,7 +35,7 @@ fn beam_phase(mu: f32, g: f32) -> f32 {
 fn post(input: PostInput) -> vec4<f32> {
     let neutral = vec4<f32>(0.0, 0.0, 0.0, 1.0);
     let day = smoothstep(0.0, 0.12, frame.sun_direction.y);
-    if (frame.dimension != 0 || frame.eye_in != 0u || frame.has_shadow == 0u ||
+    if (performance_profile < 2u || frame.dimension != 0 || frame.eye_in != 0u || frame.has_shadow == 0u ||
         rays_strength <= 0.0 || rays_density <= 0.0 || atmosphere_density <= 0.0 || day <= 0.0) {
         return neutral;
     }
@@ -50,7 +50,8 @@ fn post(input: PostInput) -> vec4<f32> {
         }
     }
     if (distance <= 0.01) { return neutral; }
-    let steps = select(select(select(32, 64, rays_quality == 1u), 96, rays_quality == 2u),128,rays_quality==3u);
+    let quality_steps=array<i32,4>(32,64,96,128)[min(rays_quality,3u)];
+    let steps=min(quality_steps,array<i32,5>(1,1,16,48,128)[min(performance_profile,4u)]);
     let jitter = textureLoad(density_noise, vec2<i32>(input.pixel) % vec2<i32>(256), 0).g;
     let mu = clamp(dot(ray, frame.sun_direction), -1.0, 1.0);
     // Broad aerosol scattering makes oblique woodland beams visible. The

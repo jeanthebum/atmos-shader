@@ -4,8 +4,7 @@ override camera_filter: bool = true;
 override filter_strength: f32 = 0.45;
 
 fn tonemap(input: TonemapInput) -> vec3<f32> {
-    let exposure=textureSampleLevel(previous,linear_sampler,input.uv,0.0).a;
-    let x=max(input.color*select(brightness_gain,exposure,exposure>0.0),vec3<f32>(0.0));
+    let x=max(input.color,vec3<f32>(0.0));
     // A single display transform after lighting, water, atmosphere and bloom.
     let mapped=clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),vec3<f32>(0.0),vec3<f32>(1.0));
     var display=to_display(mapped);

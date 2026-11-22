@@ -1,7 +1,7 @@
 override contact_shading: f32 = 0.5;
 
 fn ambient_occlusion(input: PostInput) -> f32 {
-    if (input.depth <= 0.0 || contact_shading <= 0.0) { return 1.0; }
+    if (performance_profile<2u || input.depth <= 0.0 || contact_shading <= 0.0) { return 1.0; }
     let size = vec2<f32>(textureDimensions(scene_depth));
     let surf = surface_at(vec2<i32>(input.uv * size));
     if (!surf.present) { return 1.0; }
@@ -82,6 +82,6 @@ fn post(input: PostInput) -> vec4<f32> {
         let fog=smoothstep(frame.fog_environment.x,max(frame.fog_environment.y,frame.fog_environment.x+0.01),travel);
         color=mix(color,frame.fog_color,fog);
     }
-    // Exposure travels in alpha through spatial AA; the display ignores coverage here.
-    return vec4<f32>(max(color,vec3<f32>(0.0)),textureLoad(exposure_value,vec2<i32>(0),0).r);
+    let exposure=textureLoad(exposure_value,vec2<i32>(0),0).r;
+    return vec4<f32>(max(color,vec3<f32>(0.0))*exposure,1.0);
 }

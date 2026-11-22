@@ -1,4 +1,4 @@
-override performance_profile: u32 = 3u;
+override performance_profile: u32 = 2u;
 override mapped_shadows: bool = true;
 override bloom_strength: f32 = 0.3;
 // Atmos Shader's original biome/weather model. The renderer supplies spatially
@@ -133,8 +133,9 @@ fn biome_air(position: vec3<f32>, sky: bool) -> vec4<f32> {
     let ray=position/max(length(position),0.001);
     let open_air=smoothstep(0.03,0.38,frame.eye_light_smooth.y);
     var optical=0.0;
-    for(var i=0;i<8;i=i+1) {
-        let t=distance*(f32(i)+0.5)/8.0;
+    let samples=array<i32,5>(1,2,4,6,8)[min(performance_profile,4u)];
+    for(var i=0;i<samples;i=i+1) {
+        let t=distance*(f32(i)+0.5)/f32(samples);
         let p=frame.camera_position+ray*t;
         let drift=vec2<f32>(frame.time*0.22,frame.time*-0.13);
         let broad=env_noise(p.xz*0.022+drift*0.022+p.y*0.006);
@@ -144,7 +145,7 @@ fn biome_air(position: vec3<f32>, sky: bool) -> vec4<f32> {
         let wisps=0.60+bank*0.85+layer*bank*(humid*1.5+swamp*1.1+woodland*0.7);
         let vertical=exp(-max(p.y-max(frame.camera_position.y+2.0,68.0),0.0)*0.055);
         let near_clear=smoothstep(2.0,12.0,t);
-        optical+=density*distance/8.0*wisps*vertical*open_air*near_clear;
+        optical+=density*distance/f32(samples)*wisps*vertical*open_air*near_clear;
     }
     optical*=select(1.0,1.0-smoothstep(0.03,0.24,ray.y),sky);
     let day=smoothstep(-0.08,0.16,frame.sun_direction.y);

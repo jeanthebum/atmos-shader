@@ -15,6 +15,7 @@ fn visibility(position: vec3<f32>, normal: vec3<f32>, skylight: f32) -> f32 {
     if (any(p.xy <= vec2<f32>(0.002)) || any(p.xy >= vec2<f32>(0.998)) || p.z <= 0.0 || p.z >= 1.0) {
         return fallback;
     }
+    if(performance_profile<=1u) {return textureSampleCompareLevel(shadow_map,shadow_sampler,p.xy,p.z);}
     var lit = 0.0;
     for (var y = -1; y <= 1; y = y + 1) {
         for (var x = -1; x <= 1; x = x + 1) {
@@ -59,7 +60,7 @@ fn material(input: MaterialInput) -> Surface {
     let transmission = select(0.0, foliage_transmission * thinness * (0.15 + 0.4 * max(dot(-normal, frame.light_direction), 0.0) + 0.8 * forward_scatter), leaf);
     // Broad cloud shadow uses the same moving density field as the cloud pass.
     var cloud_visibility = 1.0;
-    if (cloud_shadows > 0.0 && frame.sun_direction.y > 0.08) {
+    if (performance_profile>=2u && cloud_shadows > 0.0 && frame.sun_direction.y > 0.08) {
         let world = input.position + frame.camera_position;
         let travel = max((218.0 - world.y) / frame.sun_direction.y, 0.0);
         let cover = cloud_mass(world + frame.sun_direction * travel, false);

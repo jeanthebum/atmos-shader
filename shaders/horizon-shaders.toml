@@ -1,7 +1,7 @@
 schema = 1
 id = "afterglow_hdr"
 name = "Atmos Shader"
-version = "0.16.2"
+version = "0.16.3"
 api = "0.2"
 description = "Lush wet jungles, detailed rain, layered biome mist and distinct landscapes."
 shared = ["palette.wgsl", "environment.wgsl"]
@@ -17,16 +17,29 @@ file = "density-noise.png"
 filter = "linear"
 wrap = "repeat"
 
+# These passes store optical data in alpha. Kept RGBA textures preserve all four channels.
+[[resource]]
+name = "cloud_light"
+format = "rgba16float"
+scale = 0.5
+keep = "view"
+
+[[resource]]
+name = "sun_rays"
+format = "rgba16float"
+scale = 0.5
+keep = "view"
+
 [[post]]
 file = "post/cloudscape.wgsl"
 files = ["density.wgsl"]
 name = "Cloudscape"
 output = "cloud_light"
-scale = 0.5
 
 [[post]]
 file = "post/cloud_composite.wgsl"
 name = "Cloud reconstruction"
+reads = ["cloud_light"]
 
 [[post]]
 file = "post/heat.wgsl"
@@ -37,7 +50,6 @@ file = "post/shafts.wgsl"
 files = ["density.wgsl"]
 name = "God rays"
 output = "sun_rays"
-scale = 0.5
 
 [[post]]
 file = "post/bloom_horizontal.wgsl"
@@ -67,7 +79,7 @@ writes = ["exposure_value"]
 
 [[post]]
 file = "post/grade.wgsl"
-reads = ["exposure_value"]
+reads = ["exposure_value", "sun_rays"]
 name = "Contact shading and grade"
 
 [[post]]
@@ -255,10 +267,18 @@ min = 0.2
 max = 2.0
 step = 0.1
 
+[[options]]
+id = "performance_profile"
+name = "Performance preset"
+description = "Sets cloud and sun shaft sampling, reflected clouds, and post effects. Potato is the fastest."
+type = "choice"
+values = ["Potato", "Low", "Medium", "High", "NASA"]
+default = "Medium"
+
 [[pages]]
 id = "main"
 name = "Atmos Shader"
-items = ["page:lighting", "page:atmosphere", "page:wind", "page:finish", "page:water", "page:biomes", "page:weather"]
+items = ["performance_profile", "page:lighting", "page:atmosphere", "page:wind", "page:finish", "page:water", "page:biomes", "page:weather"]
 
 [[pages]]
 id = "lighting"

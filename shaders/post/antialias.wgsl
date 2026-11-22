@@ -1,6 +1,7 @@
 override edge_smoothing: f32 = 0.65;
 fn aa_luma(c: vec3<f32>) -> f32 { return log2(1.0+dot(c,vec3<f32>(0.2126,0.7152,0.0722))); }
 fn post(input: PostInput) -> vec4<f32> {
+    if(performance_profile==0u) {return input.color;}
     let px = 1.0 / vec2<f32>(textureDimensions(previous));
     let c = input.color.rgb;
     let nw = textureSampleLevel(previous,linear_sampler,input.uv+px*vec2<f32>(-1.0,-1.0),0.0).rgb;

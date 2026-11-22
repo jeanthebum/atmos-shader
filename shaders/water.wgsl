@@ -70,11 +70,11 @@ fn water_gradient(p: vec3<f32>) -> vec2<f32> {
 }
 
 fn reflected_clouds(origin: vec3<f32>, ray: vec3<f32>, sky: vec3<f32>) -> vec3<f32> {
-    if (ray.y <= 0.025 || cloud_coverage<=0.0) { return sky; }
+    if (performance_profile < 3u || ray.y <= 0.025 || cloud_coverage<=0.0) { return sky; }
     let start=max((185.0-origin.y)/ray.y,0.0);
     let end=min((340.0-origin.y)/ray.y,3000.0);
     if (end<=start) { return sky; }
-    let steps=clamp(i32(ceil((end-start)/5.0)),48,160);
+    let steps=clamp(i32(ceil((end-start)/5.0)),32,select(80,160,performance_profile>=4u));
     let stride=(end-start)/f32(steps);
     let day=smoothstep(-0.08,0.18,frame.sun_direction.y);
     let sun=frame.light_direction;
@@ -122,7 +122,7 @@ fn reflected_clouds(origin: vec3<f32>, ray: vec3<f32>, sky: vec3<f32>) -> vec3<f
 // This is a short lighting march; reflected cloud silhouettes use their own
 // longer view march. Sunlight above the layer needs no cloud attenuation.
 fn water_sun_transmission(origin: vec3<f32>) -> f32 {
-    if (cloud_coverage<=0.0 || frame.sun_direction.y<=0.02 || origin.y>=340.0) { return 1.0; }
+    if (performance_profile<2u || cloud_coverage<=0.0 || frame.sun_direction.y<=0.02 || origin.y>=340.0) { return 1.0; }
     let start=max((185.0-origin.y)/frame.sun_direction.y,0.0);
     let end=(340.0-origin.y)/frame.sun_direction.y;
     let stride=(end-start)/10.0;
