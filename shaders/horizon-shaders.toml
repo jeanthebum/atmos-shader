@@ -78,7 +78,6 @@ max = 1.5
 step = 0.05
 
 [material]
-fog = false
 file = "material.wgsl"
 files = ["density.wgsl", "water.wgsl"]
 
@@ -376,6 +375,7 @@ step = 0.05
 file = "tonemap.wgsl"
 
 [frame]
+fog = "pack"
 blend = "gamma"
 
 [[options]]
